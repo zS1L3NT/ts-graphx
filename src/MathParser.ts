@@ -19,10 +19,10 @@ export default class MathParser {
 	public history: operator[]
 
 	constructor(text: string, devmode?: boolean) {
-		const openCount = (text.match(/\(/) || []).length
-		const closeCount = (text.match(/\)/) || []).length
+		const openCount = (text.match(/\(/g) || []).length
+		const closeCount = (text.match(/\)/g) || []).length
 		if (openCount !== closeCount)
-			throw new Error("Bracket not closed properly")
+			throw new Error(`[${text}] Bracket not closed properly`)
 
 		this.history = []
 
@@ -50,8 +50,7 @@ export default class MathParser {
 			product = this.nextOperator(this.text, 0)
 		}
 
-		if (product === undefined || isNaN(product))
-			throw new Error(`[${this.text}] Couldn't parse expression`)
+		if (product === undefined || isNaN(product)) this.unparsable(this.text)
 
 		if (product === -0) product = 0
 
@@ -172,9 +171,7 @@ export default class MathParser {
 
 		if (terms.length === 1) {
 			this.skip++
-			if (this.skip === 5) {
-				throw new Error(`[${part}] Could not parse this expression`)
-			}
+			if (this.skip === 5) this.unparsable(part)
 
 			this.log(depth, `(+) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
@@ -204,9 +201,7 @@ export default class MathParser {
 
 		if (terms.length === 1) {
 			this.skip++
-			if (this.skip === 5) {
-				throw new Error(`[${part}] Could not parse this expression`)
-			}
+			if (this.skip === 5) this.unparsable(part)
 
 			this.log(depth, `(-) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
@@ -245,9 +240,7 @@ export default class MathParser {
 
 		if (terms.length === 1) {
 			this.skip++
-			if (this.skip === 5) {
-				throw new Error(`[${part}] Could not parse this expression`)
-			}
+			if (this.skip === 5) this.unparsable(part)
 
 			this.log(depth, `(*) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
@@ -277,9 +270,7 @@ export default class MathParser {
 
 		if (terms.length === 1) {
 			this.skip++
-			if (this.skip === 5) {
-				throw new Error(`[${part}] Could not parse this expression`)
-			}
+			if (this.skip === 5) this.unparsable(part)
 
 			this.log(depth, `(/) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
@@ -312,9 +303,7 @@ export default class MathParser {
 
 		if (terms.length === 1) {
 			this.skip++
-			if (this.skip === 5) {
-				throw new Error(`[${part}] Could not parse this expression`)
-			}
+			if (this.skip === 5) this.unparsable(part)
 
 			this.log(depth, `(^) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
@@ -422,6 +411,10 @@ export default class MathParser {
 		const numbers = [..."0123456789."]
 		let hasDot = false
 
+		if (value === "") {
+			throw new Error(`[${this.text}] Empty parenthesis must be filled`)
+		}
+
 		for (let i = 0, il = value.length; i < il; i++) {
 			const char = value[i]
 			if (i === 0 && char === "-") continue
@@ -437,6 +430,16 @@ export default class MathParser {
 
 	private log(depth: number, ...message: any) {
 		if (this.devmode) console.log(`${"    ".repeat(depth)}`, message)
+	}
+
+	private unparsable(text: string) {
+		if (text.match(/(sin|cos|tan)[^\(]/g))
+			throw new Error(
+				`[${text}] Trigonometric functions must have their children wrapped in brackets`
+			)
+		if (text.match(/^(.*[+\-\*\/\^]|[+\-\*\/\^].*)$/))
+				throw new Error(`[${text}] One of the mathematical operators are left hanging`)
+		throw new Error(`[${text}] Couldn't parse expression`)
 	}
 }
 
