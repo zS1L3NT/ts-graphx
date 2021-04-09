@@ -44,6 +44,8 @@ export default class MathParser {
 	public calc(): number {
 		let product: number
 
+		this.log(0, this.text)
+
 		if (this.isNumber(this.text)) {
 			product = parseFloat(this.text)
 		} else {
@@ -54,7 +56,7 @@ export default class MathParser {
 
 		if (product === -0) product = 0
 
-		if (this.devmode) console.log(this.text, "=", product, "✔️")
+		this.log(0, this.text, "=", product, "✔️")
 		return Math.round(product * 1000000) / 1000000
 	}
 
