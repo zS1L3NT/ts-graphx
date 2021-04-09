@@ -3,11 +3,14 @@ import assert from "assert"
 
 const calc = (val: string, dev?: boolean): number => new MathParser(val, !!dev).calc()
 
+console.log("Starting test 🎡")
+
 // Expressions
 assert(calc("5") === 5, "5 !== 5")
 assert(calc("-5") === -5, "-5 !== -5")
 assert(calc("(5)") === 5, "(5) !== 5")
 assert(calc("(((((((-3)))))))") === -3, "(-3) !== -3")
+console.log("Weird object tests ✔️")
 
 // Positive operations
 {
@@ -59,6 +62,15 @@ console.log("Zero exceptions ✔️")
 	assert(calc("(8 * 0.5) / (5 - 3)") === 2, "(8 * 0.5) / (5 - 3) !== 2")
 	assert(calc("(4 ^ 3) ^ (1 / 3)") === 4, "(4 ^ 3) ^ (1 / 3) !== 4")
 	console.log("Bracket and bracket operations ✔️")
+}
+
+// Trigonometric operations
+{
+	// Simple trigonometric operations
+	assert(calc("sin(40 - 10)") === 0.5, "sin(40 - 10) !== 0.5")
+	assert(calc("cos((3 ^ 2) * 10)") === 0, "cos((3 ^ 2) * 10) !== 0")
+	assert(calc("tan(60) ^ 2") === 3, "tan(60) ^ 2 !== 3")
+	console.log("Simple trigonometric operations ✔️")
 }
 
 console.log("Passed all tests 🎉")

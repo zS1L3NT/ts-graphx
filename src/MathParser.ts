@@ -9,12 +9,15 @@
  * Subtraction
  */
 
-type operator = "+" | "-" | "*" | "/" | "^"
+type operator = "+" | "-" | "*" | "/" | "^" | "s" | "c" | "t"
 
 export default class MathParser {
 	private devmode: boolean = false
 	private text: string
 
+	private DP = 9
+	private depth = 0
+	private skip_max = 8
 	private skip = 0
 	public history: operator[]
 
@@ -44,33 +47,66 @@ export default class MathParser {
 	public calc(): number {
 		let product: number
 
-		this.log(0, this.text)
+		this.log(this.depth, "Parsing:", this.text)
 
 		if (this.isNumber(this.text)) {
 			product = parseFloat(this.text)
 		} else {
-			product = this.nextOperator(this.text, 0)
+			product = this.nextOperator(this.text, this.depth)
 		}
 
 		if (product === undefined || isNaN(product)) this.unparsable(this.text)
 
 		if (product === -0) product = 0
 
-		this.log(0, this.text, "=", product, "✔️")
-		return Math.round(product * 1000000) / 1000000
+		this.log(this.depth, this.text, "=", product, "✔️")
+
+		const multiplier = Math.pow(10, this.DP)
+		return Math.round(product * multiplier) / multiplier
+	}
+
+	public setDepth(depth: number): MathParser {
+		this.depth = depth
+		return this
+	}
+
+	public setDP(DP: number): MathParser {
+		this.DP = DP
+		return this
 	}
 
 	private nextOperator(part: string, depth: number): number {
-		const prevprevious = this.history[this.history.length - 2]
-		const previous = this.history[this.history.length - 1]
+		// (s) (c) (t) (^) (+ -) (+ -) (* /) (* /)
 		const len = this.history.length
+		const prevprevious = this.history[len - 2]
+		const previous = this.history[len - 1]
 
 		const highOps = [..."*/"].sort()
 		const lowOps = [..."+-"].sort()
 
-		// If []
+		// If [] 
+		// If [...].length % 8 === 0
+		if (len % this.skip_max === 0) {
+			return this.sine(part, depth)
+		}
+
+		// If [..., (s)]
+		if (previous === "s") {
+			return this.cosine(part, depth)
+		}
+
+		// If [..., (c)]
+		if (previous === "c") {
+			return this.tangent(part, depth)
+		}
+
+		// If [..., (t)]
+		if (previous === "t") {
+			return this.exponential(part, depth)
+		}
+
 		// If [..., (^)]
-		if (len === 0 || previous === "^") {
+		if (previous === "^") {
 			const [addition] = this.split(part, "+")
 			const [subtraction] = this.split(part, "-")
 
@@ -81,42 +117,11 @@ export default class MathParser {
 			}
 		}
 
-		// If [(+)(-)]
-		if (len === 1) {
-			// If [(+)]
-			if (previous === "+") {
-				return this.subtraction(part, depth)
-			}
-
-			// If [(-)]
-			else {
-				return this.addition(part, depth)
-			}
-		}
-
-		if (this.history.length >= 4) {
-			const previousFour = JSON.stringify(
-				this.history.slice(len - 4, len).sort()
-			)
-
-			// If [..., (+)(-)(*)(/), (+)(-)(*)(/), (+)(-)(*)(/), (+)(-)(*)(/)]
-			if (previousFour === JSON.stringify([..."+-*/"].sort())) {
-				return this.exponential(part, depth)
-			}
-		}
-
 		// If [..., (*)(/)]
 		if (highOps.indexOf(previous) >= 0) {
 			// If [..., (*)(/), (*)(/)]
 			if (highOps.indexOf(prevprevious) >= 0) {
-				const [addition] = this.split(part, "+")
-				const [subtraction] = this.split(part, "-")
-
-				if (addition.length < subtraction.length) {
-					return this.addition(part, depth)
-				} else {
-					return this.subtraction(part, depth)
-				}
+				return this.sine(part, depth)
 			}
 
 			// If [..., (+)(-), (*)(/)]
@@ -172,8 +177,7 @@ export default class MathParser {
 		this.history.push(op)
 
 		if (terms.length === 1) {
-			this.skip++
-			if (this.skip === 5) this.unparsable(part)
+			if (this.skip++ === this.skip_max) this.unparsable(part)
 
 			this.log(depth, `(+) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
@@ -202,8 +206,7 @@ export default class MathParser {
 		this.history.push(op)
 
 		if (terms.length === 1) {
-			this.skip++
-			if (this.skip === 5) this.unparsable(part)
+			if (this.skip++ === this.skip_max) this.unparsable(part)
 
 			this.log(depth, `(-) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
@@ -241,8 +244,7 @@ export default class MathParser {
 		this.history.push(op)
 
 		if (terms.length === 1) {
-			this.skip++
-			if (this.skip === 5) this.unparsable(part)
+			if (this.skip++ === this.skip_max) this.unparsable(part)
 
 			this.log(depth, `(*) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
@@ -271,8 +273,7 @@ export default class MathParser {
 		this.history.push(op)
 
 		if (terms.length === 1) {
-			this.skip++
-			if (this.skip === 5) this.unparsable(part)
+			if (this.skip++ === this.skip_max) this.unparsable(part)
 
 			this.log(depth, `(/) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
@@ -296,7 +297,7 @@ export default class MathParser {
 		return product!
 	}
 
-	private exponential(part: string, depth: number) {
+	private exponential(part: string, depth: number): number {
 		const op = "^"
 		let product: undefined | number
 		const terms = this.split(part, op)
@@ -304,8 +305,7 @@ export default class MathParser {
 		this.history.push(op)
 
 		if (terms.length === 1) {
-			this.skip++
-			if (this.skip === 5) this.unparsable(part)
+			if (this.skip++ === this.skip_max) this.unparsable(part)
 
 			this.log(depth, `(^) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
@@ -331,6 +331,87 @@ export default class MathParser {
 
 		this.log(depth, `(^) {FINISH}: [${part}] -> [${product}]`)
 		return product!
+	}
+
+	public sine(part: string, depth: number): number {
+		this.history.push("s")
+
+		if (part.startsWith("sin(") && part.endsWith(")")) {
+			const sin = part.slice(4, part.length - 1)
+			this.log(depth, `(s) {FOUND}:`, sin)
+
+			const degree = new MathParser(sin, this.devmode).setDepth(depth + 1).calc()
+
+			try {
+				const radians = (degree / 180) * Math.PI
+				const result = Math.sin(radians)
+				this.log(depth, `(s) {FINISH}: [${part}] -> [${result}]`)
+
+				return result
+			} catch {
+				console.log(`(s) {ERROR} [${part}]`)
+				process.exit()
+			}
+		} else {
+			if (this.skip++ === this.skip_max) this.unparsable(part)
+
+			this.log(depth, `(s) {ABSENT} [${part}]`)
+			return this.nextOperator(part, depth)
+		}
+	}
+
+	public cosine(part: string, depth: number): number {
+		this.history.push("c")
+		
+		if (part.startsWith("cos(") && part.endsWith(")")) {
+			const cos = part.slice(4, part.length - 1)
+			this.log(depth, `(c) {FOUND}:`, cos)
+
+			const degree = new MathParser(cos, this.devmode).setDepth(depth + 1).calc()
+
+			try {
+				const radians = (degree / 180) * Math.PI
+				const result = Math.cos(radians)
+				this.log(depth, `(c) {FINISH}: [${part}] -> [${result}]`)
+
+				return result
+			} catch {
+				console.log(`(c) {ERROR} [${part}]`)
+				process.exit()
+			}
+		} else {
+			if (this.skip++ === this.skip_max) this.unparsable(part)
+
+			this.log(depth, `(c) {ABSENT} [${part}]`)
+			return this.nextOperator(part, depth)
+		}
+	}
+
+	public tangent(part: string, depth: number): number {
+		this.history.push("t")
+		
+		if (part.startsWith("tan(") && part.endsWith(")")) {
+			const tan = part.slice(4, part.length - 1)
+			this.log(depth, `(t) {FOUND}:`, tan)
+
+			const degree = new MathParser(tan, this.devmode).setDepth(depth + 1).calc()
+
+			try {
+				const radians = (degree / 180) * Math.PI
+				const result = Math.tan(radians)
+				this.log(depth, `(t) {FINISH}: [${part}] -> [${result}]`)
+
+				return result
+			} catch {
+				console.log(`(t) {ERROR} [${part}]`)
+				process.exit()
+			}
+		} else {
+			if (this.skip++ === this.skip_max) this.unparsable(part)
+			
+			this.log(depth, `(t) {ABSENT} [${part}]`)
+			return this.nextOperator(part, depth)
+		}
 	}
 
 	/**
@@ -440,9 +521,11 @@ export default class MathParser {
 				`[${text}] Trigonometric functions must have their children wrapped in brackets`
 			)
 		if (text.match(/^(.*[+\-\*\/\^]|[+\-\*\/\^].*)$/))
-				throw new Error(`[${text}] One of the mathematical operators are left hanging`)
+			throw new Error(
+				`[${text}] One of the mathematical operators are left hanging`
+			)
 		throw new Error(`[${text}] Couldn't parse expression`)
 	}
 }
 
-// console.log(new MathParser("4 ^ -1", true).calc())
+console.log(new MathParser("100/3", true).setDP(3).calc())
