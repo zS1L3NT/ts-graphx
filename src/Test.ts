@@ -1,82 +1,125 @@
 import MathParser from "./MathParser"
-import assert from "assert"
 
-const calc = (val: string, dev?: boolean): number =>
-	new MathParser(val, !!dev).calc()
+const checkEqual = (val: string, ans: number) => {
+	try {
+		if (new MathParser(val).calc() !== ans) {
+			console.log(val, `!==`, ans)
+			new MathParser(val, true).calc()
+		}
+	} catch {
+		new MathParser(val, true).calc()
+		process.exit()
+	}
+}
+
+const checkFail = (val: string) => {
+	try {
+		new MathParser(val).calc()
+
+		console.log(val, `doesn't raise an error`)
+		new MathParser(val, true).calc()
+		process.exit()
+	} catch {}
+}
 
 console.log("Starting test 🎡")
 
 // Expressions
-assert(calc("5") === 5, "5 !== 5")
-assert(calc("-5") === -5, "-5 !== -5")
-assert(calc("(5)") === 5, "(5) !== 5")
-assert(calc("(((((((-3)))))))") === -3, "(-3) !== -3")
+checkFail("")
+checkEqual("5", 5)
+checkEqual("-5", -5)
+checkEqual("(5)", 5)
+checkEqual("(((((((-3)))))))", -3)
 console.log("Weird object tests ✔️")
+
+// Syntax errors
+checkFail("2 + (5 * 2")
+checkFail("(((((4))))")
+checkFail("((2)) * ((3")
+checkFail("((9)) * ((1)")
+console.log("Syntax errors ✔️")
+
+// Decimal operations
+checkEqual("2.5", 2.5)
+checkEqual("4*2.5 + 8.5+1.5 / 3.0", 19)
+checkEqual("5.0005 + 0.0095", 5.01)
+console.log("Decimal operations ✔️")
 
 // Positive operations
 {
 	// Simple operations
-	assert(calc("1 + 1") === 2, "1 + 1 !== 2")
-	assert(calc("10 - 9") === 1, "10 - 9 !== 1")
-	assert(calc("3 * 2") === 6, "3 * 2 !== 6")
-	assert(calc("6 / 3") === 2, "6 / 3 !== 2")
-	assert(calc("4 ^ 3") === 64, "4 ^ 3 !== 64")
+	checkEqual("1 + 1", 2)
+	checkEqual("10 - 9", 1)
+	checkEqual("3 * 2", 6)
+	checkEqual("6 / 3", 2)
+	checkEqual("4 ^ 3", 64)
 	console.log("Simple operations ✔️")
 
 	// Bracket and number operations
-	assert(calc("(3 * 2) + 1") === 7, "(3 * 2) + 1 !== 7")
-	assert(calc("(3 * 2) - 4") === 2, "(3 * 2) - 4 !== 2")
-	assert(calc("(3 * 2) * 3") === 18, "(3 * 2) * 3 !== 18")
-	assert(calc("(3 * 2) / 6") === 1, "(3 * 2) / 6 !== 1")
-	assert(calc("(3 * 2) ^ 4") === 1296, "(3 * 2) ^ 4 !== 1296")
+	checkEqual("(3 * 2) + 1", 7)
+	checkEqual("(3 * 2) - 4", 2)
+	checkEqual("(3 * 2) * 3", 18)
+	checkEqual("(3 * 2) / 6", 1)
+	checkEqual("(3 * 2) ^ 4", 1296)
 	console.log("Bracket and number operations ✔️")
 }
 
 // Zero exceptions
-assert(calc("0 / 1") === 0, "0 / 1 !== 0")
-assert.throws(() => calc("0 /0"), Error, "0 / 0 !== Error")
+checkEqual("0 / 1", 0)
+checkFail("0/0")
 console.log("Zero exceptions ✔️")
 
 // Nagative operations
 {
-	assert(calc("-1 + 1") === 0, "-1 + 1 !== 0")
-	assert(calc("-1 - 1") === -2, "-1 - 1 !== -2")
-	assert(calc("-1 * 3") === -3, "-1 * 3 !== -3")
-	assert(calc("-1 / -1") === 1, "-1 / -1 !== 1")
-	assert(calc("4 ^ -1") === 0.25, "4 ^ -1 !== 0.25")
+	checkEqual("-1 + 1", 0)
+	checkEqual("-1 - 1", -2)
+	checkEqual("-1 * 3", -3)
+	checkEqual("-1 / -1", 1)
+	checkEqual("4 ^ -1", 0.25)
 	console.log("Simple starting negative operations ✔️")
 
-	assert(calc("0 + -1") === -1, "0 + -1 !== -1")
-	assert(calc("0 - -1") === 1, "0 - -1 !== 1")
-	assert(calc("5 * -1") === -5, "5 * -1 !== -5")
-	assert(calc("-6 / -2") === 3, "-6 / -2 !== 3")
-	assert(calc("64 ^ -0.5") === 0.125, "64 ^ -0.5 !== 0.125")
+	checkEqual("0 + -1", -1)
+	checkEqual("0 - -1", 1)
+	checkEqual("5 * -1", -5)
+	checkEqual("-6 / -2", 3)
+	checkEqual("64 ^ -0.5", 0.125)
 	console.log("Double-sign negative operations ✔️")
 }
 
 // Bracket operations
 {
 	// Bracket and bracket operations
-	assert(calc("(4 / 2) + (5 * 2)") === 12, "(4 / 2) + (5 * 2) !== 12")
-	assert(calc("(3 - 1) - (3 + 2)") === -3, "(3 - 1) - (3 + 2) !== -3")
-	assert(calc("(2 + 8) * (7 - 3)") === 40, "(2 + 8) * (7 - 3) !== 40")
-	assert(calc("(8 * 0.5) / (5 - 3)") === 2, "(8 * 0.5) / (5 - 3) !== 2")
-	assert(calc("(4 ^ 3) ^ (1 / 3)") === 4, "(4 ^ 3) ^ (1 / 3) !== 4")
+	checkEqual("(4 / 2) + (5 * 2)", 12)
+	checkEqual("(3 - 1) - (3 + 2)", -3)
+	checkEqual("(2 + 8) * (7 - 3)", 40)
+	checkEqual("(8 * 0.5) / (5 - 3)", 2)
+	checkEqual("(4 ^ 3) ^ (1 / 3)", 4)
 	console.log("Bracket and bracket operations ✔️")
 
 	// Operating on negative brackets
-	assert(calc("1 * -(5 - 3)") === -2, "1 * -(5 - 3) !== -2")
-	assert(calc("-(-6)", true) === 6, "-(-6) !== 6")
+	checkEqual("1 * -(5 - 3)", -2)
+	checkEqual("-(-6)", 6)
 	console.log("Operating on negative brackets ✔️")
 }
 
 // Trigonometric operations
 {
 	// Simple trigonometric operations
-	assert(calc("sin(40 - 10)") === 0.5, "sin(40 - 10) !== 0.5")
-	assert(calc("cos((3 ^ 2) * 10)") === 0, "cos((3 ^ 2) * 10) !== 0")
-	assert(calc("tan(60) ^ 2") === 3, "tan(60) ^ 2 !== 3")
+	checkEqual("sin(40 - 10)", 0.5)
+	checkEqual("cos((3 ^ 2) * 10)", 0)
+	checkEqual("tan(60) ^ 2", 3)
 	console.log("Simple trigonometric operations ✔️")
 }
+
+// Long BEDMAS operations
+checkEqual("2 -4 +6 -1 -1- 0 +8", 10)
+checkEqual("1 -1   + 2   - 2   +  4 - 4 +    6", 6)
+checkEqual("2*3 - 4*5 + 6/3", -12)
+checkEqual("2*3*4/8 -   5/2*4 +  6 + 0/3   ", -1)
+checkEqual("(5 + 2*3 - 1 + 7 * 8)", 66)
+checkEqual("(67 + 2 * 3 - 67 + 2/1 - 7)", 1)
+checkEqual("(2) + (17*2-30) * (5)+2 - (8/2)*4", 8)
+checkFail("(5*7/5) + (23) - 5 * (98-4)/(6*7-42)")
+console.log("Long BEDMAS operations ✔️")
 
 console.log("Passed all tests 🎉")

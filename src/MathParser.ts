@@ -51,6 +51,7 @@ export default class MathParser {
 
 		this.log(this.depth, "Parsing:", this.text)
 
+		if (!this.text) throw new Error("Mathematical expression is empty")
 		if (this.isNumber(this.text)) {
 			product = parseFloat(this.text)
 		} else {
@@ -80,11 +81,7 @@ export default class MathParser {
 	private nextOperator(part: string, depth: number): number {
 		// (s) (c) (t) (^) (+ -) (+ -) (* /) (* /)
 		const len = this.history.length
-		const prevprevious = this.history[len - 2]
 		const previous = this.history[len - 1]
-
-		const highOps = [..."*/"].sort()
-		const lowOps = [..."+-"].sort()
 
 		// If []
 		// If [...].length % 8 === 0
@@ -107,68 +104,56 @@ export default class MathParser {
 			return this.exponential(part, depth)
 		}
 
-		// If [..., (^)]
-		if (previous === "^") {
-			const [addition] = this.split(part, "+")
-			const [subtraction] = this.split(part, "-")
+		const addition = this.split(part, "+")
+		const subtraction = this.split(part, "-")
+		const multiplication = this.split(part, "*")
+		const division = this.split(part, "/")
 
-			if (addition.length < subtraction.length) {
+		if (
+			[
+				addition.length,
+				subtraction.length,
+				multiplication.length,
+				division.length
+			].every(i => i === 1)
+		) {
+			return this.sine(part, depth)
+		}
+		if (addition.length > 1 || subtraction.length > 1) {
+			const aTerm2 = addition[1]
+			const sTerm2 = subtraction[1]
+
+			if (!aTerm2) {
+				return this.subtraction(part, depth)
+			}
+
+			if (!sTerm2) {
+				return this.addition(part, depth)
+			}
+
+			if (aTerm2.length < sTerm2.length) {
 				return this.addition(part, depth)
 			} else {
 				return this.subtraction(part, depth)
 			}
-		}
+		} else {
+			const mTerm2 = multiplication[1]
+			const dTerm2 = division[1]
 
-		// If [..., (*)(/)]
-		if (highOps.indexOf(previous) >= 0) {
-			// If [..., (*)(/), (*)(/)]
-			if (highOps.indexOf(prevprevious) >= 0) {
-				return this.sine(part, depth)
+			if (!mTerm2) {
+				return this.division(part, depth)
 			}
 
-			// If [..., (+)(-), (*)(/)]
-			else {
-				// If [..., (+)(-), (*)]
-				if (previous === "*") {
-					return this.division(part, depth)
-				}
+			if (!dTerm2) {
+				return this.multiplication(part, depth)
+			}
 
-				// If [..., (+)(-), (/)]
-				else {
-					return this.multiplication(part, depth)
-				}
+			if (mTerm2.length < dTerm2.length) {
+				return this.multiplication(part, depth)
+			} else {
+				return this.division(part, depth)
 			}
 		}
-
-		// If [..., (+)(-)]
-		if (lowOps.indexOf(previous) >= 0) {
-			// If [..., (+)(-), (+)(-)]
-			if (lowOps.indexOf(prevprevious) >= 0) {
-				const [multiplication] = this.split(part, "*")
-				const [division] = this.split(part, "/")
-
-				if (multiplication.length < division.length) {
-					return this.multiplication(part, depth)
-				} else {
-					return this.division(part, depth)
-				}
-			}
-
-			// If [..., (*)(/), (+)(-)]
-			else {
-				// If [..., (*)(/), (+)]
-				if (previous === "+") {
-					return this.subtraction(part, depth)
-				}
-
-				// If [..., (*)(/), (-)]
-				else {
-					return this.addition(part, depth)
-				}
-			}
-		}
-
-		throw new Error("No next operator")
 	}
 
 	private addition(part: string, depth: number): number {
@@ -294,12 +279,17 @@ export default class MathParser {
 		for (let i = 0, il = terms.length; i < il; i++) {
 			const term = this.strip(terms[i])
 			if (this.isNumber(term)) {
-				if (product !== undefined) product /= parseFloat(term)
-				else product = parseFloat(term)
+				if (product !== undefined) {
+					const val = parseFloat(term)
+					if (val === 0) throw new Error(`[${part}] Zero division error`)
+					product /= val
+				} else product = parseFloat(term)
 			} else {
-				if (product !== undefined)
-					product /= this.nextOperator(term, depth + 1)
-				else product = this.nextOperator(term, depth + 1)
+				if (product !== undefined) {
+					const val = this.nextOperator(term, depth + 1)
+					if (val === 0) throw new Error(`[${part}] Zero division error`)
+					product /= val
+				} else product = this.nextOperator(term, depth + 1)
 			}
 		}
 
@@ -437,13 +427,13 @@ export default class MathParser {
 	 * @param text Text to split
 	 * @returns {string[]} Terms split up
 	 */
-	private split(text: string, operator?: operator): string[] {
+	public split(text: string, operator?: operator): string[] {
 		const operators: string[] = operator ? [operator] : [..."+-*/^"]
 		const terms: string[] = []
 		let chunk = ""
 		let depth = 0
 
-		for (let i = 0, il = text.length; i < il; i++) {
+		for (let i = text.length - 1; i >= 0; i--) {
 			const char = text[i]
 
 			if (char === "(") {
@@ -453,16 +443,15 @@ export default class MathParser {
 			}
 
 			if (depth === 0 && operators.includes(char)) {
+				terms.push(text.slice(0, text.length - chunk.length - 1))
 				terms.push(chunk)
-				chunk = ""
-			} else {
-				chunk += char
+				break
 			}
+
+			chunk = char + chunk
 		}
 
-		if (chunk !== "") {
-			terms.push(chunk)
-		}
+		if (terms.length === 0) terms.push(chunk)
 
 		return terms.map(i => i.trim())
 	}
@@ -589,4 +578,4 @@ export default class MathParser {
 	}
 }
 
-console.log(new MathParser("1 -1   + 2   - 2   +  4 - 4 +    6", true).calc())
+// console.log(new MathParser("1 -1   + 2   - 2   +  4 - 4 +    6", true).calc())
