@@ -31,10 +31,12 @@ export default class MathParser {
 
 		this.text = text.replace(/ /g, "")
 		this.text = this.text.replace(/^-((\d+)(\.\d+)?)/, "(0-$1)")
+
 		this.text = this.text.replace(
 			/([\(\+\-*\/\^])-((\d+)(\.\d+)?)/,
 			"$1(0-$2)"
 		)
+
 		this.text = this.strip(this.text)
 
 		if (devmode !== undefined) this.devmode = devmode
@@ -84,7 +86,7 @@ export default class MathParser {
 		const highOps = [..."*/"].sort()
 		const lowOps = [..."+-"].sort()
 
-		// If [] 
+		// If []
 		// If [...].length % 8 === 0
 		if (len % this.skip_max === 0) {
 			return this.sine(part, depth)
@@ -172,7 +174,9 @@ export default class MathParser {
 	private addition(part: string, depth: number): number {
 		const op = "+"
 		let product = 0
-		const terms = this.split(part, op)
+
+		const sPart = this.serializeNegatives(part)
+		const terms = this.split(sPart, op)
 
 		this.history.push(op)
 
@@ -180,7 +184,7 @@ export default class MathParser {
 			if (this.skip++ === this.skip_max) this.unparsable(part)
 
 			this.log(depth, `(+) {ABSENT} [${part}]`)
-			return this.nextOperator(part, depth)
+			return this.nextOperator(sPart, depth)
 		}
 
 		this.skip = 0
@@ -201,7 +205,9 @@ export default class MathParser {
 	private subtraction(part: string, depth: number): number {
 		const op = "-"
 		let product: undefined | number
-		const terms = this.split(part, op)
+
+		const sPart = this.serializeNegatives(part)
+		const terms = this.split(sPart, op)
 
 		this.history.push(op)
 
@@ -209,13 +215,13 @@ export default class MathParser {
 			if (this.skip++ === this.skip_max) this.unparsable(part)
 
 			this.log(depth, `(-) {ABSENT} [${part}]`)
-			return this.nextOperator(part, depth)
+			return this.nextOperator(sPart, depth)
 		}
 
 		// Negative start case
 		if (terms[0] === "") {
 			this.log(depth, `(-) [${part}] -ve start case, returning product`)
-			return this.nextOperator(part, depth)
+			return this.nextOperator(sPart, depth)
 		}
 
 		this.skip = 0
@@ -239,7 +245,9 @@ export default class MathParser {
 	private multiplication(part: string, depth: number): number {
 		const op = "*"
 		let product = 1
-		const terms = this.split(part, op)
+
+		const sPart = this.serializeNegatives(part)
+		const terms = this.split(sPart, op)
 
 		this.history.push(op)
 
@@ -247,7 +255,7 @@ export default class MathParser {
 			if (this.skip++ === this.skip_max) this.unparsable(part)
 
 			this.log(depth, `(*) {ABSENT} [${part}]`)
-			return this.nextOperator(part, depth)
+			return this.nextOperator(sPart, depth)
 		}
 
 		this.skip = 0
@@ -268,7 +276,9 @@ export default class MathParser {
 	private division(part: string, depth: number): number {
 		const op = "/"
 		let product: undefined | number
-		const terms = this.split(part, op)
+
+		const sPart = this.serializeNegatives(part)
+		const terms = this.split(sPart, op)
 
 		this.history.push(op)
 
@@ -276,7 +286,7 @@ export default class MathParser {
 			if (this.skip++ === this.skip_max) this.unparsable(part)
 
 			this.log(depth, `(/) {ABSENT} [${part}]`)
-			return this.nextOperator(part, depth)
+			return this.nextOperator(sPart, depth)
 		}
 
 		this.skip = 0
@@ -300,7 +310,9 @@ export default class MathParser {
 	private exponential(part: string, depth: number): number {
 		const op = "^"
 		let product: undefined | number
-		const terms = this.split(part, op)
+
+		const sPart = this.serializeNegatives(part)
+		const terms = this.split(sPart, op)
 
 		this.history.push(op)
 
@@ -308,7 +320,7 @@ export default class MathParser {
 			if (this.skip++ === this.skip_max) this.unparsable(part)
 
 			this.log(depth, `(^) {ABSENT} [${part}]`)
-			return this.nextOperator(part, depth)
+			return this.nextOperator(sPart, depth)
 		}
 
 		this.skip = 0
@@ -340,7 +352,9 @@ export default class MathParser {
 			const sin = part.slice(4, part.length - 1)
 			this.log(depth, `(s) {FOUND}:`, sin)
 
-			const degree = new MathParser(sin, this.devmode).setDepth(depth + 1).calc()
+			const degree = new MathParser(sin, this.devmode)
+				.setDepth(depth + 1)
+				.calc()
 
 			try {
 				const radians = (degree / 180) * Math.PI
@@ -362,12 +376,14 @@ export default class MathParser {
 
 	public cosine(part: string, depth: number): number {
 		this.history.push("c")
-		
+
 		if (part.startsWith("cos(") && part.endsWith(")")) {
 			const cos = part.slice(4, part.length - 1)
 			this.log(depth, `(c) {FOUND}:`, cos)
 
-			const degree = new MathParser(cos, this.devmode).setDepth(depth + 1).calc()
+			const degree = new MathParser(cos, this.devmode)
+				.setDepth(depth + 1)
+				.calc()
 
 			try {
 				const radians = (degree / 180) * Math.PI
@@ -389,12 +405,14 @@ export default class MathParser {
 
 	public tangent(part: string, depth: number): number {
 		this.history.push("t")
-		
+
 		if (part.startsWith("tan(") && part.endsWith(")")) {
 			const tan = part.slice(4, part.length - 1)
 			this.log(depth, `(t) {FOUND}:`, tan)
 
-			const degree = new MathParser(tan, this.devmode).setDepth(depth + 1).calc()
+			const degree = new MathParser(tan, this.devmode)
+				.setDepth(depth + 1)
+				.calc()
 
 			try {
 				const radians = (degree / 180) * Math.PI
@@ -408,7 +426,7 @@ export default class MathParser {
 			}
 		} else {
 			if (this.skip++ === this.skip_max) this.unparsable(part)
-			
+
 			this.log(depth, `(t) {ABSENT} [${part}]`)
 			return this.nextOperator(part, depth)
 		}
@@ -511,6 +529,49 @@ export default class MathParser {
 		return true
 	}
 
+	public serializeNegatives(part: string): string {
+		let result = ""
+		//
+		// (5-6)*
+		// 7
+		const terms = this.split(part, "-")
+
+		for (let i = 0, il = terms.length; i < il; i++) {
+			const term = terms[i]
+
+			// Starting exception
+			// -(5-6)*
+			if (i === 0) {
+				if (term === "") {
+					// -(5-6)*
+					const nextTerm = terms[1]
+					// -(5-6)
+					const bracketed = this.split(nextTerm)[0]
+					// *
+					const rest = nextTerm.slice(bracketed.length)
+
+					// (0-(5-6))*
+					result = `(0-${bracketed})${rest}`
+					i = 1
+				} else {
+					result += `${term}`
+				}
+				continue
+			}
+
+			if (terms[i - 1].match(/[\+\-*\/^]$/)) {
+				result += `(0-${term})`
+				continue
+			}
+
+			result += `-${term}`
+
+			// (0-(5-6))*-7
+		}
+
+		return this.strip(result)
+	}
+
 	private log(depth: number, ...message: any) {
 		if (this.devmode) console.log(`${"    ".repeat(depth)}`, message)
 	}
@@ -528,4 +589,4 @@ export default class MathParser {
 	}
 }
 
-console.log(new MathParser("100/3", true).setDP(3).calc())
+console.log(new MathParser("1 -1   + 2   - 2   +  4 - 4 +    6", true).calc())

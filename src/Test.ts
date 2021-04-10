@@ -1,7 +1,8 @@
 import MathParser from "./MathParser"
 import assert from "assert"
 
-const calc = (val: string, dev?: boolean): number => new MathParser(val, !!dev).calc()
+const calc = (val: string, dev?: boolean): number =>
+	new MathParser(val, !!dev).calc()
 
 console.log("Starting test 🎡")
 
@@ -62,6 +63,11 @@ console.log("Zero exceptions ✔️")
 	assert(calc("(8 * 0.5) / (5 - 3)") === 2, "(8 * 0.5) / (5 - 3) !== 2")
 	assert(calc("(4 ^ 3) ^ (1 / 3)") === 4, "(4 ^ 3) ^ (1 / 3) !== 4")
 	console.log("Bracket and bracket operations ✔️")
+
+	// Operating on negative brackets
+	assert(calc("1 * -(5 - 3)") === -2, "1 * -(5 - 3) !== -2")
+	assert(calc("-(-6)", true) === 6, "-(-6) !== 6")
+	console.log("Operating on negative brackets ✔️")
 }
 
 // Trigonometric operations
