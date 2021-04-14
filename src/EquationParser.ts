@@ -1,6 +1,6 @@
 import MathParser from "./MathParser"
 
-class EquationParser {
+export default class EquationParser {
 	private devmode: boolean = false
 	private text: string
 
@@ -11,6 +11,7 @@ class EquationParser {
 	private step: number
 
 	constructor(text: string, devmode?: boolean) {
+		if (!text) throw new Error("No text provided")
 		const openCount = (text.match(/\(/g) || []).length
 		const closeCount = (text.match(/\)/g) || []).length
 		if (openCount !== closeCount)
@@ -18,12 +19,18 @@ class EquationParser {
 
 		this.text = text.replace(/ /g, "")
 
-		if (!this.text.startsWith("y=")) {
-			throw new Error(`[${text}] A graphical equation must start with "y = ..."`)
+		if (!this.text.match(/y=.*/)) {
+			throw new Error(`[${text}] An equation must start with "y = ..."`)
+		}
+
+		const equalCount = (text.match(/=/g) || []).length
+		if (equalCount !== 1) {
+			throw new Error(`[${text}] An equation must have 1 equal sign`)
 		}
 
 		if (devmode !== undefined) this.devmode = devmode
 		this.text = this.text.slice(2).replace(/(-?(\d+)(\.\d+)?)x/g, `(x*$1)`)
+		this.text = this.text.replace(/x((\d+)(\.\d+)?)/g, "(x*$1)")
 		this.highX = 5
 		this.lowX = -5
 		this.highY = Infinity
@@ -109,9 +116,9 @@ class EquationParser {
 	}
 }
 
-class Coordinate {
-	private x: number
-	private y: number
+export class Coordinate {
+	public x: number
+	public y: number
 
 	constructor(x: number, y: number) {
 		this.x = x
@@ -119,6 +126,3 @@ class Coordinate {
 	}
 }
 
-console.log(
-	new EquationParser("y = sin(cos(x))", true).setRangeX(0, 360).setStep(30).calc()
-)
