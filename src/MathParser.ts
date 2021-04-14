@@ -99,11 +99,6 @@ export default class MathParser {
 			return this.tangent(part, depth)
 		}
 
-		// If [..., (t)]
-		if (previous === "t") {
-			return this.exponential(part, depth)
-		}
-
 		const addition = this.split(part, "+")
 		const subtraction = this.split(part, "-")
 		const multiplication = this.split(part, "*")
@@ -117,7 +112,7 @@ export default class MathParser {
 				division.length
 			].every(i => i === 1)
 		) {
-			return this.sine(part, depth)
+			return this.exponential(part, depth)
 		}
 		if (addition.length > 1 || subtraction.length > 1) {
 			const aTerm2 = addition[1]

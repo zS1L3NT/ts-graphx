@@ -28,9 +28,15 @@ export default class EquationParser {
 			throw new Error(`[${text}] An equation must have 1 equal sign`)
 		}
 
+		this.text = this.text.slice(2)
+		const lazyMultiplyRegex = /(((\d+)(\.\d+)?)x)|(x((\d+)(\.\d+)?))|x\(|\)x|\)((\d+)(\.\d+)?)|((\d+)(\.\d+)?)\(/g
+		const lazyMultiply = this.text.match(lazyMultiplyRegex)
+
+		if (lazyMultiply) {
+			throw new Error(`[${lazyMultiply[0]}] Lazy multiplication found, instead use "*" to multiply`)
+		}
+
 		if (devmode !== undefined) this.devmode = devmode
-		this.text = this.text.slice(2).replace(/(-?(\d+)(\.\d+)?)x/g, `(x*$1)`)
-		this.text = this.text.replace(/x((\d+)(\.\d+)?)/g, "(x*$1)")
 		this.highX = 5
 		this.lowX = -5
 		this.highY = Infinity
