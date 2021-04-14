@@ -337,13 +337,12 @@ export default class MathParser {
 			const sin = part.slice(4, part.length - 1)
 			this.log(depth, `(s) {FOUND}:`, sin)
 
-			const degree = new MathParser(sin, this.devmode)
+			const angle = new MathParser(sin, this.devmode)
 				.setDepth(depth + 1)
 				.calc()
 
 			try {
-				const radians = (degree / 180) * Math.PI
-				const result = Math.sin(radians)
+				const result = Math.sin(angle)
 				this.log(depth, `(s) {FINISH}: [${part}] -> [${result}]`)
 
 				return result
@@ -366,13 +365,12 @@ export default class MathParser {
 			const cos = part.slice(4, part.length - 1)
 			this.log(depth, `(c) {FOUND}:`, cos)
 
-			const degree = new MathParser(cos, this.devmode)
+			const angle = new MathParser(cos, this.devmode)
 				.setDepth(depth + 1)
 				.calc()
 
 			try {
-				const radians = (degree / 180) * Math.PI
-				const result = Math.cos(radians)
+				const result = Math.cos(angle)
 				this.log(depth, `(c) {FINISH}: [${part}] -> [${result}]`)
 
 				return result
@@ -395,13 +393,12 @@ export default class MathParser {
 			const tan = part.slice(4, part.length - 1)
 			this.log(depth, `(t) {FOUND}:`, tan)
 
-			const degree = new MathParser(tan, this.devmode)
+			const angle = new MathParser(tan, this.devmode)
 				.setDepth(depth + 1)
 				.calc()
 
 			try {
-				const radians = (degree / 180) * Math.PI
-				const result = Math.tan(radians)
+				const result = Math.tan(angle)
 				this.log(depth, `(t) {FINISH}: [${part}] -> [${result}]`)
 
 				return result
