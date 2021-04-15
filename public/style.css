@@ -16,7 +16,7 @@ html, body, #app {
 }
 
 #display {
-	position: absolute;
+	/* position: absolute; */
 	width: 500px;
 	height: 500px;
 	border: 1px solid #d3d3d3;
@@ -34,4 +34,8 @@ html, body, #app {
 	width: 1px;
 	height: 1px;
 	background-color: black;
+}
+
+.hide {
+	display: none
 }

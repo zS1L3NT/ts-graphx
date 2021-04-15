@@ -2,9 +2,10 @@ window.onload = () => {
 	const app = new Vue({
 		el: "#app",
 		data: {
-			equation: "",
+			equation: "y=tan(x)",
 			coordinates: [],
 			error: "",
+			pixels: 1000,
 			rangeX: {
 				low: -5,
 				high: 5
@@ -20,7 +21,8 @@ window.onload = () => {
 					.post("/", {
 						data: this.equation,
 						rangeX: this.rangeX,
-						rangeY: this.rangeY
+						rangeY: this.rangeY,
+						pixels: this.pixels
 					})
 					.then(res => {
 						this.coordinates = res.data
@@ -33,9 +35,7 @@ window.onload = () => {
 						snackbar.open()
 					})
 			},
-			coordinateStyle: function (c) {
-				const { x, y } = c
-
+			getPixels: function ({ x, y }) {
 				/**
 				 * * Centre the pixels
 				 */
@@ -47,13 +47,46 @@ window.onload = () => {
 				/**
 				 * * Increase the scale of the pixels
 				 */
-				const percentX = (centeredX / rangeX) * 100
-				const percentY = (centeredY / rangeY) * 100
+				const pixelX = (centeredX / rangeX) * this.pixels
+				const pixelY = 1000 - ((centeredY / rangeY) * this.pixels)
 
-				return {
-					left: percentX + '%',
-					top: percentY + '%'
+				return { pixelX, pixelY }
+			}
+		},
+		watch: {
+			coordinates: function (coords) {
+				if (coords.length === 0) return undefined
+
+				const cv = document.getElementById("display")
+				const ctx = cv.getContext("2d")
+				ctx.beginPath()
+
+				for (let i = 0; i < coords.length; i++) {
+					const { pixelX, pixelY } = this.getPixels(coords[i])
+
+					if (i === 0) {
+						ctx.moveTo(pixelX, pixelY)
+					} else {
+						const { pixelY: ppixelY } = this.getPixels(coords[i - 1])
+						
+						if ((ppixelY > this.P95 && pixelY < this.P05) || (ppixelY < this.P05 && pixelY > this.P95)) {
+							ctx.stroke()
+							ctx.moveTo(pixelX, pixelY)
+						} else {
+							ctx.lineTo(pixelX, pixelY)
+						}
+					}
 				}
+
+				ctx.stroke()
+			}
+		},
+		computed: {
+			P95: function () {
+				return 0.95 * this.pixels
+			},
+			P05: function () {
+				return 0.05  * this.pixels
 			}
 		}
 	})

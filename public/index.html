@@ -63,14 +63,15 @@
 				</div>
 			</article>
 			<!-- Output -->
-			<article id="display" v-else>
-				<span
-					v-for="c in coordinates"
-					class="coordinate"
-					:style="coordinateStyle(c)"
-				>
-				</span>
-			</article>
+			<!-- <article id="display" v-else> -->
+				<!-- <span -->
+					<!-- v-for="c in coordinates" -->
+					<!-- class="coordinate" -->
+					<!-- :style="coordinateStyle(c)" -->
+				<!-- > -->
+				<!-- </span> -->
+			<!-- </article> -->
+			<canvas :width="pixels" :height="pixels" :class="{ hide: !coordinates.length }" id="display"></canvas>
 		</main>
 	</body>
 </html>
