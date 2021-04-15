@@ -6,7 +6,7 @@
 	"author": "zS1L3NT",
 	"scripts": {
 		"start": "node build/app.js",
-		"build": "ts-node src/app.ts"
+		"dev": "ts-node src/app.ts"
 	},
 	"dependencies": {
 		"express": "^4.17.1",

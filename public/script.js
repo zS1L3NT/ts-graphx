@@ -15,38 +15,54 @@ window.onload = () => {
 			}
 		},
 		methods: {
-			calculate: function () {
+			fetch: function () {
 				axios
 					.post("/", {
 						data: this.equation,
 						rangeX: this.rangeX,
-						rangeY: this.rangeY,
-						step: this.stepX
+						rangeY: this.rangeY
 					})
-					.then((res) => {
+					.then(res => {
 						this.coordinates = res.data
 						this.error = ""
 					})
-					.catch((e) => {
+					.catch(e => {
 						console.log(e)
 						this.coordinates = []
 						this.error = e.response.data
 						snackbar.open()
 					})
-			}
-		},
-		computed: {
-			stepX: function () {
-				return (this.rangeX.high - this.rangeX.low) / 500
 			},
-			stepY: function () {
-				return (this.rangeY.high - this.rangeY.low) / 500
+			coordinateStyle: function (c) {
+				const { x, y } = c
+
+				/**
+				 * * Centre the pixels
+				 */
+				const rangeX = this.rangeX.high - this.rangeX.low
+				const rangeY = this.rangeY.high - this.rangeY.low
+				const centeredX = x + rangeX / 2
+				const centeredY = y + rangeY / 2
+
+				/**
+				 * * Increase the scale of the pixels
+				 */
+				const percentX = (centeredX / rangeX) * 100
+				const percentY = (centeredY / rangeY) * 100
+
+				return {
+					left: percentX + '%',
+					top: percentY + '%'
+				}
 			}
 		}
 	})
 
+	/**
+	 * * Material UI
+	 */
+	new mdc.textField.MDCTextField(document.querySelector(".equation"))
 	const snackbar = new mdc.snackbar.MDCSnackbar(
 		document.querySelector(".error")
 	)
-	new mdc.textField.MDCTextField(document.querySelector(".equation"))
 }

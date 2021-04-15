@@ -44,7 +44,7 @@
 				<br />
 
 				<!-- Button to move on -->
-				<button class="mdc-button visualize" @click="calculate">
+				<button class="mdc-button visualize" @click="fetch">
 					<div class="mdc-button__ripple"></div>
 					<span class="mdc-button__label">Visualize</span>
 				</button>
@@ -67,7 +67,7 @@
 				<span
 					v-for="c in coordinates"
 					class="coordinate"
-					:style="{ left: c.x/stepX + 250 + 'px', top: c.y/stepY + 250 + 'px'}"
+					:style="coordinateStyle(c)"
 				>
 				</span>
 			</article>

@@ -36,11 +36,11 @@ app.post(
 				}),
 				Tundefined()
 			),
-			step: Tor(Tnumber(), Tundefined())
+			pixels: Tor(Tnumber(), Tundefined())
 		})
 	),
 	(req, res) => {
-		const { data, rangeX, rangeY, step } = req.body as {
+		const { data, rangeX, rangeY, pixels } = req.body as {
 			data: string
 			rangeX:
 				| {
@@ -54,7 +54,7 @@ app.post(
 						high: number
 				  }
 				| undefined
-			step: number | undefined
+			pixels: number | undefined
 		}
 
 		try {
@@ -68,8 +68,8 @@ app.post(
 				parser.setRangeY(rangeY.low, rangeY.high)
 			}
 
-			if (step) {
-				parser.setStep(step)
+			if (pixels) {
+				parser.setPixels(pixels)
 			}
 
 			res.status(200).send(parser.calc())

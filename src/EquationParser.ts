@@ -4,11 +4,11 @@ export default class EquationParser {
 	private devmode: boolean = false
 	private text: string
 
+	private pixels: number
 	private highX: number
 	private lowX: number
 	private highY: number
 	private lowY: number
-	private step: number
 
 	constructor(text: string, devmode?: boolean) {
 		if (!text) throw new Error("No text provided")
@@ -37,18 +37,18 @@ export default class EquationParser {
 		}
 
 		if (devmode !== undefined) this.devmode = devmode
+		this.pixels = 5000
 		this.highX = 5
 		this.lowX = -5
 		this.highY = Infinity
 		this.lowY = -Infinity
-		this.step = 1
 	}
 
 	public calc(): Coordinate[] {
 		let result: Coordinate[] = []
-		let x = this.round(this.lowX)
-
-		while (x <= this.highX) {
+		
+		for (let i = 0; i < this.pixels; i++) {
+			const x = this.lowX + ((this.highX - this.lowX) / this.pixels) * i
 			let value = this.text
 			value = value.replace(/x/g, x.toString())
 
@@ -56,8 +56,6 @@ export default class EquationParser {
 
 			if (y < this.highY && y > this.lowY)
 				result.push(new Coordinate(x, y))
-
-			x = this.round(x + this.step)
 		}
 
 		return result
@@ -111,12 +109,12 @@ export default class EquationParser {
 		return this
 	}
 
-	public setStep(step: number): EquationParser {
-		if (step <= 0) {
-			throw new Error("Step value must be greater than 0")
+	public setPixels(pixels: number): EquationParser {
+		if (pixels < 1) {
+			throw new Error("Must have at least 1 pixel")
 		}
 
-		this.step = step
+		this.pixels = pixels
 
 		return this
 	}
