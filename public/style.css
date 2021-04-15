@@ -15,6 +15,10 @@ body,
 	padding: 2.5%;
 }
 
+article {
+	padding: 1rem 0;
+}
+
 @media only screen and (min-width: 769px) {
 	/* For desktops: */
 	article {
