@@ -70,10 +70,10 @@ window.onload = () => {
 						const { pixelY: ppixelY } = this.getPixels(coords[i - 1])
 						
 						if (
-							(ppixelY > this.P95 && pixelY < this.P05) ||
-							(ppixelY < this.P05 && pixelY > this.P95) ||
-							(ppixelY > this.P95 && pixelY > this.P95) ||
-							(ppixelY < this.P05 && pixelY < this.P05)
+							(ppixelY > this.pixels && pixelY < 0) ||
+							(ppixelY < 0 && pixelY > this.pixels) ||
+							(ppixelY > this.pixels && pixelY > this.pixels) ||
+							(ppixelY < 0 && pixelY < 0)
 						) {
 							ctx.stroke()
 							ctx.moveTo(pixelX, pixelY)

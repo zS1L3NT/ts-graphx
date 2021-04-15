@@ -30,7 +30,8 @@ body,
 }
 
 #canvas {
-	/* position: absolute; */
+	display: block;
+	margin: 0 auto;
 	max-width: 500px;
 	max-height: 500px;
 	border: 1px solid #d3d3d3;

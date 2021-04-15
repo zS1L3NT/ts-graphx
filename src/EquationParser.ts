@@ -33,7 +33,9 @@ export default class EquationParser {
 		const lazyMultiply = this.text.match(lazyMultiplyRegex)
 
 		if (lazyMultiply) {
-			throw new Error(`[${lazyMultiply[0]}] Lazy multiplication found, instead use "*" to multiply`)
+			throw new Error(
+				`[${lazyMultiply[0]}] Lazy multiplication found, instead use "*" to multiply`
+			)
 		}
 
 		if (devmode !== undefined) this.devmode = devmode
@@ -46,7 +48,9 @@ export default class EquationParser {
 
 	public calc(): Coordinate[] {
 		let result: Coordinate[] = []
-		
+		let above = 0
+		let below = 0
+
 		for (let i = 0; i < this.pixels; i++) {
 			const x = this.lowX + ((this.highX - this.lowX) / this.pixels) * i
 			let value = this.text
@@ -54,8 +58,15 @@ export default class EquationParser {
 
 			const y = this.round(new MathParser(value, this.devmode).calc())
 
-			if (y < this.highY && y > this.lowY)
+			if (y < this.highY && y > this.lowY) {
+				above = 0
+				below = 0
 				result.push(new Coordinate(x, y))
+			} else if (y > this.highY && ++above === 1) {
+				result.push(new Coordinate(x, y))
+			} else if (y < this.lowY && ++below === 1) {
+				result.push(new Coordinate(x, y))
+			}
 		}
 
 		return result
@@ -129,4 +140,3 @@ export class Coordinate {
 		this.y = y
 	}
 }
-
