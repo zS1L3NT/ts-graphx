@@ -32,7 +32,6 @@ window.onload = () => {
 						console.log(e)
 						this.coordinates = []
 						this.error = e.response.data
-						snackbar.open()
 					})
 			},
 			getPixels: function ({ x, y }) {
@@ -57,8 +56,9 @@ window.onload = () => {
 			coordinates: function (coords) {
 				if (coords.length === 0) return undefined
 
-				const cv = document.getElementById("display")
+				const cv = document.getElementById("canvas")
 				const ctx = cv.getContext("2d")
+				ctx.clearRect(0, 0, this.pixels, this.pixels)
 				ctx.beginPath()
 
 				for (let i = 0; i < coords.length; i++) {
@@ -69,7 +69,12 @@ window.onload = () => {
 					} else {
 						const { pixelY: ppixelY } = this.getPixels(coords[i - 1])
 						
-						if ((ppixelY > this.P95 && pixelY < this.P05) || (ppixelY < this.P05 && pixelY > this.P95)) {
+						if (
+							(ppixelY > this.P95 && pixelY < this.P05) ||
+							(ppixelY < this.P05 && pixelY > this.P95) ||
+							(ppixelY > this.P95 && pixelY > this.P95) ||
+							(ppixelY < this.P05 && pixelY < this.P05)
+						) {
 							ctx.stroke()
 							ctx.moveTo(pixelX, pixelY)
 						} else {
@@ -90,12 +95,4 @@ window.onload = () => {
 			}
 		}
 	})
-
-	/**
-	 * * Material UI
-	 */
-	new mdc.textField.MDCTextField(document.querySelector(".equation"))
-	const snackbar = new mdc.snackbar.MDCSnackbar(
-		document.querySelector(".error")
-	)
 }

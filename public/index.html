@@ -7,6 +7,9 @@
 		<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 		<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 		<script src="script.js"></script>
 		<link rel="stylesheet" href="style.css" />
 		<link
@@ -17,61 +20,63 @@
 			rel="stylesheet"
 			href="https://fonts.googleapis.com/icon?family=Material+Icons"
 		/>
+		<link
+			rel="stylesheet"
+			href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		/>
 		<title>Graphx</title>
 	</head>
 	<body>
 		<main id="app">
-			<!-- Centered content -->
-			<article v-if="!coordinates.length" id="query">
-				<!-- Input box -->
-				<label class="mdc-text-field mdc-text-field--outlined equation">
-					<span class="mdc-notched-outline">
-						<span class="mdc-notched-outline__leading"></span>
-						<span class="mdc-notched-outline__notch">
-							<span class="mdc-floating-label" id="my-label-id"
-								>Equation</span
-							>
-						</span>
-						<span class="mdc-notched-outline__trailing"></span>
-					</span>
+			<article id="display">
+				<canvas id="canvas" :width="pixels" :height="pixels"></canvas>
+				<div class="input-group">
 					<input
-						v-model="equation"
 						type="text"
-						class="mdc-text-field__input"
-						aria-labelledby="my-label-id"
+						class="form-control equation"
+						placeholder="Equation"
+						v-model="equation"
 					/>
-				</label>
-				<br />
-
-				<!-- Button to move on -->
-				<button class="mdc-button visualize" @click="fetch">
-					<div class="mdc-button__ripple"></div>
-					<span class="mdc-button__label">Visualize</span>
-				</button>
-
-				<!-- Snackbar error -->
-				<div class="mdc-snackbar mdc-snackbar--stacked error">
-					<div
-						class="mdc-snackbar__surface"
-						role="status"
-						aria-relevant="additions"
-					>
-						<div class="mdc-snackbar__label" aria-atomic="false">
-							{{error}}
-						</div>
-					</div>
 				</div>
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<span class="input-group-text" id="">High X</span>
+					</div>
+					<input
+						type="number"
+						class="form-control"
+						v-model.number="rangeX.high"
+					/>
+					<div class="input-group-prepend">
+						<span class="input-group-text" id="">Low X</span>
+					</div>
+					<input
+						type="number"
+						class="form-control"
+						v-model.number="rangeX.low"
+					/>
+				</div>
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<span class="input-group-text" id="">High Y</span>
+					</div>
+					<input
+						type="number"
+						class="form-control"
+						v-model.number="rangeY.high"
+					/>
+					<div class="input-group-prepend">
+						<span class="input-group-text" id="">Low Y</span>
+					</div>
+					<input
+						type="number"
+						class="form-control"
+						v-model.number="rangeY.low"
+					/>
+				</div>
+				<p v-if="error" class="text-center text-danger">{{ error }}</p>
+				<button class="btn btn-success visualize" @click="fetch">Visualize</button>
 			</article>
-			<!-- Output -->
-			<!-- <article id="display" v-else> -->
-				<!-- <span -->
-					<!-- v-for="c in coordinates" -->
-					<!-- class="coordinate" -->
-					<!-- :style="coordinateStyle(c)" -->
-				<!-- > -->
-				<!-- </span> -->
-			<!-- </article> -->
-			<canvas :width="pixels" :height="pixels" :class="{ hide: !coordinates.length }" id="display"></canvas>
 		</main>
 	</body>
 </html>
