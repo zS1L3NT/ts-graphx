@@ -28,7 +28,7 @@
 	</head>
 	<body>
 		<main id="app">
-			<article id="display">
+			<article>
 				<canvas id="canvas" :width="pixels" :height="pixels"></canvas>
 				<div class="input-group">
 					<input
@@ -40,38 +40,24 @@
 				</div>
 				<div class="input-group">
 					<div class="input-group-prepend">
-						<span class="input-group-text" id="">High X</span>
+						<span class="input-group-text" id="">Range X</span>
 					</div>
 					<input
 						type="number"
 						class="form-control"
-						v-model.number="rangeX.high"
-					/>
-					<div class="input-group-prepend">
-						<span class="input-group-text" id="">Low X</span>
-					</div>
-					<input
-						type="number"
-						class="form-control"
-						v-model.number="rangeX.low"
+						value="5"
+						@change="inputX"
 					/>
 				</div>
 				<div class="input-group">
 					<div class="input-group-prepend">
-						<span class="input-group-text" id="">High Y</span>
+						<span class="input-group-text" id="">Range Y</span>
 					</div>
 					<input
 						type="number"
 						class="form-control"
-						v-model.number="rangeY.high"
-					/>
-					<div class="input-group-prepend">
-						<span class="input-group-text" id="">Low Y</span>
-					</div>
-					<input
-						type="number"
-						class="form-control"
-						v-model.number="rangeY.low"
+						value="5"
+						@change="inputY"
 					/>
 				</div>
 				<p v-if="error" class="text-center text-danger">{{ error }}</p>

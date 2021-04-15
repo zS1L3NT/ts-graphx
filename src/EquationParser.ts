@@ -11,7 +11,7 @@ export default class EquationParser {
 	private lowY: number
 
 	constructor(text: string, devmode?: boolean) {
-		if (!text) throw new Error("No text provided")
+		if (!text) throw new Error("No equation provided")
 		const openCount = (text.match(/\(/g) || []).length
 		const closeCount = (text.match(/\)/g) || []).length
 		if (openCount !== closeCount)
