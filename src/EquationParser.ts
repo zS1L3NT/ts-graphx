@@ -29,7 +29,8 @@ export default class EquationParser {
 		}
 
 		this.text = this.text.slice(2)
-		const lazyMultiplyRegex = /(((\d+)(\.\d+)?)x)|(x((\d+)(\.\d+)?))|x\(|\)x|\)((\d+)(\.\d+)?)|((\d+)(\.\d+)?)\(/g
+		const lazyMultiplyRegex =
+			/(((\d+)(\.\d+)?)x)|(x((\d+)(\.\d+)?))|x\(|\)x|\)((\d+)(\.\d+)?)|((\d+)(\.\d+)?)\(/g
 		const lazyMultiply = this.text.match(lazyMultiplyRegex)
 
 		if (lazyMultiply) {

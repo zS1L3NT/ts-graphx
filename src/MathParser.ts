@@ -276,13 +276,15 @@ export default class MathParser {
 			if (this.isNumber(term)) {
 				if (product !== undefined) {
 					const val = parseFloat(term)
-					if (val === 0) throw new Error(`[${part}] Zero division error`)
+					if (val === 0)
+						throw new Error(`[${part}] Zero division error`)
 					product /= val
 				} else product = parseFloat(term)
 			} else {
 				if (product !== undefined) {
 					const val = this.nextOperator(term, depth + 1)
-					if (val === 0) throw new Error(`[${part}] Zero division error`)
+					if (val === 0)
+						throw new Error(`[${part}] Zero division error`)
 					product /= val
 				} else product = this.nextOperator(term, depth + 1)
 			}
