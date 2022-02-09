@@ -42,6 +42,22 @@ $ npm i
 $ npm run dev
 ```
 
+## Testing
+
+Mathematical parser is tested with Jest. To run the tests, run the command
+
+With `yarn`
+
+```
+$ yarn test
+```
+
+With `npm`
+
+```
+$ npm run test
+```
+
 ## Built with
 
 -   TypeScript
