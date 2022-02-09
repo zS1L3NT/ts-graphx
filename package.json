@@ -1,25 +1,24 @@
 {
-	"name": "graphx",
-	"version": "1.0.0",
+	"name": "web-vue-graphx",
 	"description": "Graph drawer with equation",
-	"main": "build/app.js",
+	"main": "dist/app.js",
 	"author": "zS1L3NT",
 	"scripts": {
-		"start": "node build/app.js",
-		"dev": "ts-node src/app.ts"
+		"start": "node dist/app.js",
+		"dev": "ts-node --files src/app.ts"
 	},
 	"dependencies": {
-		"express": "^4.17.1",
-		"validate-all-types": "^1.4.1"
+		"express": "^4.17.2",
+		"validate-any": "^1.2.1"
 	},
 	"engines": {
 		"node": ">=0.12"
 	},
 	"engineStrict": true,
 	"devDependencies": {
-		"@types/express": "^4.17.11",
-		"@types/node": "^14.14.37",
-		"ts-node": "^9.1.1",
-		"typescript": "^4.2.3"
+		"@types/express": "^4.17.13",
+		"@types/node": "^17.0.16",
+		"ts-node": "^10.5.0",
+		"typescript": "^4.5.5"
 	}
 }
