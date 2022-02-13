@@ -68,7 +68,7 @@ $ npm run test
 -   Jest
     -   [![@babel/core](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/web-vue-graphx/dev/@babel/core?style=flat-square)](https://npmjs.com/package/@babel/core)
     -   [![@babel/preset-env](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/web-vue-graphx/dev/@babel/preset-env?style=flat-square)](https://npmjs.com/package/@babel/preset-env)
-    -   [![@balel/preset-typescript](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/web-vue-graphx/dev/@balel/preset-typescript?style=flat-square)](https://npmjs.com/package/@balel/preset-typescript)
+    -   [![@babel/preset-typescript](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/web-vue-graphx/dev/@babel/preset-typescript?style=flat-square)](https://npmjs.com/package/@babel/preset-typescript)
     -   [![jest](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/web-vue-graphx/dev/jest?style=flat-square)](https://npmjs.com/package/jest)
 -   Miscellaneous
     -   [![express](https://img.shields.io/github/package-json/dependency-version/zS1L3NT/web-vue-graphx/express?style=flat-square)](https://npmjs.com/package/express)
